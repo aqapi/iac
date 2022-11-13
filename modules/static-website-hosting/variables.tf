@@ -13,3 +13,7 @@ variable "ssl_certificate_arn" {
 variable "alternate_domain_name" {
   type = string
 }
+
+variable "allowed_locations" {
+  type = list(string)
+}

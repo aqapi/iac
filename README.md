@@ -14,6 +14,10 @@
    - `export TF_CLI_CONFIG_FILE=$(pwd)/.terraformrc`
 2. run `terraform init`
 
+## lightsail free tier
+
+the project will have to be migrated to other server and database service 25.01.2023 as lightsail free tier will end around then
+
 ## resources needed in aqapi
 
 - [ ] s3 bucket

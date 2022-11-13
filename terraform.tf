@@ -31,7 +31,7 @@ provider "aws" {
 
 provider "aws" {
   alias = "us_east_1"
-  
+
   profile = "kopan"
   region  = "us-east-1"
 
