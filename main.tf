@@ -1,6 +1,7 @@
 locals {
   project = "aqapi"
   env     = "main"
+  region  = "eu-central-1"
 }
 
 data "aws_region" "this" {}
@@ -17,17 +18,55 @@ module "static_website_hosting" {
   allowed_locations = ["PL"]
 }
 
-module "lightsail_container" {
-  source = "./modules/lightsail-free-container"
+module "vpc" {
+  source  = "terraform-aws-modules/vpc/aws"
+  version = "3.18.1"
+
+  enable_dns_hostnames = true
+
+  name = "${local.project}-${local.env}"
+  cidr = "10.0.0.0/16"
+
+  azs            = ["${local.region}a", "${local.region}b"]
+  public_subnets = ["10.0.1.0/24", "10.0.2.0/24"]
+
+  create_database_subnet_group = true
+  database_subnets             = ["10.0.101.0/24", "10.0.102.0/24"]
+}
+
+module "db" {
+  source = "./modules/db"
 
   project_name = local.project
   env          = local.env
 
-  container_image = "amazon/amazon-lightsail:hello-world"
+  vpc_id                = module.vpc.vpc_id
+  db_subnet_group_name  = module.vpc.database_subnet_group
+  master_db_password    = var.master_database_password
+  access_security_group = module.api.container_instance_security_group_id
+}
 
-  db_host   = ""
-  db_user   = ""
-  db_secret = ""
+module "api" {
+  source = "./modules/api"
+
+  project_name = local.project
+  env          = local.env
+
+  vpc_id               = module.vpc.vpc_id
+  db_security_group_id = module.db.security_group_id
+  subnet_id            = module.vpc.public_subnets[0]
+  availability_zone    = "${local.region}a"
+
+  ec2_public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIE1+U4xO3qbVmHNT8OO6iJsudgcnTTBb7NM6UTSSJeF aqapi ec2 instance"
+
+  ssh_allowed_list = []
+
+  db_url      = module.db.db_url
+  db_user     = var.db_user
+  db_secret   = var.db_secret
+  db_database = var.db_database
+
+  image = "nginx:latest" # "ghcr.io/aqapi/api:latest"
 
   alternate_domain_name = "api.aqapi.cloud"
   ssl_certificate_arn   = aws_acm_certificate.aqapi_us_east_1_wildcard.arn
@@ -35,12 +74,20 @@ module "lightsail_container" {
   allowed_locations = ["PL"]
 }
 
-module "lightsail_db" {
-  source = "./modules/lightsail-free-db"
+module "writer_lambda" {
+  source = "./modules/writer-lambda"
 
-  project_name      = local.project
-  env               = local.env
-  availability_zone = "${data.aws_region.this.name}a"
+  project_name = local.project
+  env          = local.env
 
-  db_password = var.master_database_password
+  schedule = "rate(365 days)"
+  handler  = "lambda_function.lambda_handler"
+
+  vpc_id    = module.vpc.vpc_id
+  subnet_id = module.vpc.public_subnets[0]
+
+  db_url      = module.db.db_url
+  db_user     = var.db_user
+  db_secret   = var.db_secret
+  db_database = var.db_database
 }

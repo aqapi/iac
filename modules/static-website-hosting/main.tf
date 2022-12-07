@@ -93,3 +93,37 @@ resource "aws_cloudfront_distribution" "this" {
     ssl_support_method       = "sni-only"
   }
 }
+
+resource "aws_iam_user" "deployment" {
+  name = "${var.project_name}-website-deployment-${var.env}"
+}
+
+resource "aws_iam_access_key" "deployment" {
+  user = aws_iam_user_policy.deployment.user
+}
+
+data "aws_iam_policy_document" "deployment" {
+  statement {
+    actions   = ["s3:ListBucket"]
+    resources = ["${aws_s3_bucket.this.arn}"]
+  }
+
+  statement {
+    actions = [
+      "s3:GetObject",
+      "s3:DeleteObject",
+      "s3:PutObject"
+    ]
+    resources = ["${aws_s3_bucket.this.arn}/*"]
+  }
+
+  statement {
+    actions   = ["cloudfront:CreateInvalidation"]
+    resources = [aws_cloudfront_distribution.this.arn]
+  }
+}
+
+resource "aws_iam_user_policy" "deployment" {
+  user   = aws_iam_user.deployment.name
+  policy = data.aws_iam_policy_document.deployment.json
+}

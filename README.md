@@ -23,7 +23,7 @@ the project will have to be migrated to other server and database service 25.01.
 - [ ] s3 bucket
 - [ ] cloudfront distribution
 - [ ] acm certificate
-- [ ] lightsail container instance
-- [ ] lightsail db instance
+- [ ] container instance
+- [ ] db instance
 - [ ] lambda function
 - [ ] container repository
