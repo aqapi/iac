@@ -100,7 +100,7 @@ resource "aws_lambda_function" "this" {
 
   environment {
     variables = {
-      DB_URL      = var.db_url,
+      DB_HOST     = var.db_url,
       DB_USER     = var.db_user,
       DB_SECRET   = var.db_secret,
       DB_DATABASE = var.db_database,
