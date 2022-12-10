@@ -66,7 +66,7 @@ module "api" {
   db_secret   = var.db_secret
   db_database = var.db_database
 
-  image = "nginx:latest" # "ghcr.io/aqapi/api:latest"
+  image = "ghcr.io/aqapi/api:latest"
 
   alternate_domain_name = "api.aqapi.cloud"
   ssl_certificate_arn   = aws_acm_certificate.aqapi_us_east_1_wildcard.arn
@@ -81,7 +81,7 @@ module "writer_lambda" {
   env          = local.env
 
   schedule = "rate(365 days)"
-  handler  = "lambda_function.lambda_handler"
+  handler  = "pl.kozubek.writerlambda.app.data.handler.MeasuringDataHandler::handleRequest"
 
   vpc_id    = module.vpc.vpc_id
   subnet_id = module.vpc.public_subnets[0]
