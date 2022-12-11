@@ -20,11 +20,11 @@ resource "aws_cloudfront_distribution" "this" {
 
   origin {
     origin_id   = var.alternate_domain_name
-    domain_name = aws_eip.this.public_dns
+    domain_name = var.ec2_instance_public_dns
 
     custom_origin_config {
-      http_port              = local.container_external_port
-      https_port             = local.container_external_port
+      http_port              = 80
+      https_port             = 80
       origin_protocol_policy = "http-only"
       origin_ssl_protocols   = ["TLSv1.2"]
     }

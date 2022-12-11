@@ -23,19 +23,21 @@ variable "db_database" {
   type = string
 }
 
-variable "handler" {
-  type = string
-}
-
 variable "schedule" {
   type        = string
   description = "E.g. cron(0 0 ? * * 0) or rate(1 hour)"
 }
 
-variable "vpc_id" {
+variable "container_memory" {
+  type        = number
+  description = "MiB of memory for the container"
+}
+
+variable "ecs_cluster_name" {
   type = string
 }
 
-variable "subnet_id" {
-  type = string
+variable "image" {
+  type        = string
+  description = "container image repository url"
 }

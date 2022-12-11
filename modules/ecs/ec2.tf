@@ -35,13 +35,9 @@ resource "aws_key_pair" "this" {
   public_key = var.ec2_public_key
 }
 
-data "aws_ec2_instance_type" "container_instance" {
-  instance_type = "t2.micro"
-}
-
 resource "aws_instance" "this" {
   ami           = "ami-0fab44817c875e415"
-  instance_type = data.aws_ec2_instance_type.container_instance.instance_type
+  instance_type = var.ec2_instance_type
   key_name      = aws_key_pair.this.key_name
 
   credit_specification {
@@ -55,7 +51,7 @@ resource "aws_instance" "this" {
 
   user_data = base64encode(<<EOF
 #!/bin/bash
-echo ECS_CLUSTER=${local.cluster_name} >> /etc/ecs/ecs.config
+echo ECS_CLUSTER=${local.ecs_cluster_name} >> /etc/ecs/ecs.config
 EOF
   )
 

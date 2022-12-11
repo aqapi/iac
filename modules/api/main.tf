@@ -1,11 +1,5 @@
-locals {
-  container_name          = "${var.project_name}-api-container-${var.env}"
-  cluster_name            = "${var.project_name}-api-cluster-${var.env}"
-  container_external_port = 80
-}
-
-resource "aws_ecs_cluster" "this" {
-  name = local.cluster_name
+data "aws_ecs_cluster" "this" {
+  cluster_name = var.ecs_cluster_name
 }
 
 resource "aws_ecs_task_definition" "this" {
@@ -17,15 +11,15 @@ resource "aws_ecs_task_definition" "this" {
 
   container_definitions = jsonencode([
     {
-      name      = local.container_name
+      name      = "${var.project_name}-api-${var.env}"
       image     = var.image
-      memory    = floor(data.aws_ec2_instance_type.container_instance.memory_size * 0.9) # use 90% of instance's memory
+      memory    = var.container_memory
       essential = true
 
       portMappings = [
         {
           containerPort = 8080
-          hostPort      = local.container_external_port
+          hostPort      = 80
         }
       ]
 
@@ -53,7 +47,7 @@ resource "aws_ecs_task_definition" "this" {
 
 resource "aws_ecs_service" "this" {
   name                 = "${var.project_name}-api-${var.env}"
-  cluster              = aws_ecs_cluster.this.id
+  cluster              = data.aws_ecs_cluster.this.arn
   task_definition      = aws_ecs_task_definition.this.arn
   force_new_deployment = true
 
