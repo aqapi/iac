@@ -1,5 +1,5 @@
 data "aws_cloudfront_cache_policy" "default" {
-  name = "Managed-CachingOptimized"
+  name = "Managed-CachingDisabled"
 }
 
 resource "aws_cloudfront_distribution" "this" {
