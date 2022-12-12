@@ -62,7 +62,7 @@ module "ecs" {
   availability_zone    = "${local.region}a"
 
   ec2_instance_type = data.aws_ec2_instance_type.container_instance.instance_type
-  ec2_public_key    = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIE1+U4xO3qbVmHNT8OO6iJsudgcnTTBb7NM6UTSSJeF aqapi ec2 instance"
+  ec2_public_key    = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMr2Js6LpphwKz5UoMxm5PzbzKZc6JnXv7edSc/S/fMS aqapi ec2 instance key"
 
   ssh_allowed_list = var.ec2_container_instance_access
 }
